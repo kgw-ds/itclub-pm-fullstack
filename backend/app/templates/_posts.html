@@ -1,0 +1,24 @@
+<ul class="post-list">
+  {% for p in posts %}
+    <li class="post-item">
+      <div class="post-left">
+        <a class="post-title" href="/posts/{{ p['id'] }}">{{ p["title"] }}</a>
+        <div class="post-meta">
+          #{{ p["id"] }} · {{ p["created_at"] }}
+        </div>
+      </div>
+
+      <div class="post-actions">
+        <button
+          class="danger"
+          hx-delete="/posts/{{ p['id'] }}"
+          hx-target="#posts-area"
+          hx-swap="innerHTML"
+          hx-confirm="정말 삭제할까요?"
+        >
+          삭제
+        </button>
+      </div>
+    </li>
+  {% endfor %}
+</ul>

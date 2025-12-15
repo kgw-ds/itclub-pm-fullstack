@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>글 목록</h1>
+
+  <form method="get" action="/" class="search-form">
+    <input
+      type="text"
+      name="q"
+      placeholder="제목/내용 검색"
+      value="{{ q|default('') }}"
+    />
+    <button type="submit">검색</button>
+
+    {% if q %}
+      <a class="button secondary" href="/">초기화</a>
+    {% endif %}
+  </form>
+
+  <div id="vue-app" data-initial-q="{{ q|default('') }}">
+    <div class="row" style="margin: 10px 0;">
+      <button type="button" @click="loadPosts">API로 목록 불러오기(Vue)</button>
+      <button type="button" class="secondary" @click="clear">Vue 화면 초기화</button>
+    </div>
+
+    <p v-if="loading" class="muted">불러오는 중...</p>
+    <p v-if="error" class="muted">에러: [[ error ]]</p>
+
+    <div v-if="posts.length > 0" class="card">
+      <p class="muted">API 결과: [[ posts.length ]]개 (query: "[[ query ]]")</p>
+      <ul class="post-list">
+        <li class="post-item" v-for="p in posts" :key="p.id">
+          <div class="post-left">
+            <a class="post-title" :href="'/posts/' + p.id">[[ p.title ]]</a>
+            <div class="post-meta">#[[ p.id ]] · [[ p.created_at ]]</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <p v-if="!loading && posts.length === 0 && hasLoaded" class="muted">
+      API 결과가 없습니다.
+    </p>
+  </div>
+
+  {% if q %}
+    <p class="muted">"{{ q }}" 검색 결과(서버 렌더): {{ posts|length }}개</p>
+  {% else %}
+    <p class="muted">총 글 개수(서버 렌더): {{ posts|length }}개</p>
+  {% endif %}
+
+  <div id="posts-area">
+    {% include "_posts.html" %}
+  </div>
+
+  {% if posts|length == 0 and q %}
+    <p class="muted">검색 결과가 없습니다. 다른 키워드로 검색해보세요.</p>
+  {% endif %}
+
+  {% if posts|length == 0 %}
+    <p class="muted">아직 글이 없습니다. <a href="/new">첫 글을 작성</a>해보세요.</p>
+  {% endif %}
+
+  <!-- Vue CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+
+  <!-- Vue App -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const root = document.getElementById("vue-app");
+      const initialQ = (root?.dataset?.initialQ || "").trim();
+
+      const app = Vue.createApp({
+        data() {
+          return {
+            posts: [],
+            query: initialQ,
+            loading: false,
+            error: "",
+            hasLoaded: false,
+          };
+        },
+        methods: {
+          async loadPosts() {
+            try {
+              this.loading = true;
+              this.error = "";
+              this.hasLoaded = true;
+
+              // 검색창 값을 읽어서 API에 전달
+              const qInput = document.querySelector('input[name="q"]');
+              const q = qInput ? qInput.value.trim() : this.query;
+              this.query = q;
+
+              const url = q ? `/api/posts?q=${encodeURIComponent(q)}` : "/api/posts";
+
+              const res = await fetch(url);
+              if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+
+              const data = await res.json();
+              this.posts = data.posts || [];
+            } catch (e) {
+              this.error = String(e);
+            } finally {
+              this.loading = false;
+            }
+          },
+          clear() {
+            this.posts = [];
+            this.error = "";
+            this.loading = false;
+            this.hasLoaded = false;
+          }
+        }
+      });
+      app.config.compilerOptions.delimiters = ["[[", "]]"];
+
+      app.mount("#vue-app");
+    });
+  </script>
+{% endblock %}
+

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>{{ post["title"] }}</h1>
+  <p class="muted">#{{ post["id"] }} · {{ post["created_at"] }}</p>
+
+  <div class="card">
+    <pre class="content">{{ post["content"] }}</pre>
+  </div>
+
+<div class="row">
+  {% if prev_id %}
+    <a class="button secondary" href="/posts/{{ prev_id }}">이전 글</a>
+  {% endif %}
+
+  <a class="button secondary" href="/">목록으로</a>
+
+  {% if next_id %}
+    <a class="button secondary" href="/posts/{{ next_id }}">다음 글</a>
+  {% endif %}
+</div>
+
+{% endblock %}

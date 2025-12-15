@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{{ title if title else "IT Club PM Demo" }}</title>
+
+    <link rel="stylesheet" href="/static/app.css" />
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+        <a href="/" class="brand">IT Club Board</a>
+        <nav class="nav">
+          <a href="/new">새 글</a>
+          <a href="/docs" target="_blank">API Docs</a>
+        </nav>
+      </header>
+
+      <main class="main">
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer class="footer">
+        <small>FastAPI + Jinja2 + HTMX + SQLite</small>
+      </footer>
+    </div>
+  </body>
+</html>

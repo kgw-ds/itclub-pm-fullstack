@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>새 글 작성</h1>
+
+  {% if error %}
+    <div class="error-box">
+      {{ error }}
+    </div>
+  {% endif %}
+
+  <form method="post" action="/posts" class="form">
+    <label>
+      제목 (최대 50자)
+      <input
+        type="text"
+        name="title"
+        placeholder="제목을 입력"
+        required
+        maxlength="50"
+        value="{{ title|default('') }}"
+      />
+    </label>
+
+    <label>
+      내용
+      <textarea
+        name="content"
+        rows="8"
+        placeholder="내용을 입력"
+        required
+      >{{ content|default('') }}</textarea>
+    </label>
+
+    <div class="row">
+      <button type="submit">작성</button>
+      <a class="button secondary" href="/">취소</a>
+    </div>
+  </form>
+{% endblock %}
